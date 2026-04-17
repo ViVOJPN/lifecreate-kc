@@ -118,6 +118,25 @@ const sections: NavSection[] = [
         ),
       },
       {
+        label: '広告ROI',
+        href: '/ads',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M3 3v18h18" />
+            <path d="M7 14l3-3 4 4 5-6" />
+          </svg>
+        ),
+      },
+      {
+        label: '需要予測',
+        href: '/forecast',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z" />
+          </svg>
+        ),
+      },
+      {
         label: '顧客LTV予測',
         href: '/ltv',
         icon: (
