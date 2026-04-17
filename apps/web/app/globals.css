@@ -5,18 +5,17 @@
 /**
  * LifeCreate Intelligence - Global styles
  * ダーク基調 × コーポレートレッドアクセント
- * 詳細トークンは tailwind.config.ts
  */
 :root {
-  --bg: #0a0a0a;
-  --bg-elevated: #121212;
+  --canvas: #0a0a0a;
+  --elevated: #121212;
   --surface: #1a1a1a;
   --surface-hover: #232323;
-  --border: #2a2a2a;
-  --border-strong: #3a3a3a;
-  --text: #f5f5f5;
-  --text-dim: #a0a0a0;
-  --text-mute: #6a6a6a;
+  --line: #2a2a2a;
+  --line-strong: #3a3a3a;
+  --foreground: #f5f5f5;
+  --muted: #a0a0a0;
+  --subtle: #6a6a6a;
   --accent: #eb031c;
   --accent-strong: #ff2d44;
   --accent-soft: rgba(235, 3, 28, 0.12);
@@ -26,6 +25,10 @@
 }
 
 @layer base {
+  * {
+    border-color: theme('colors.line.DEFAULT');
+  }
+
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -33,17 +36,20 @@
   }
 
   body {
-    @apply bg-bg text-foreground;
+    background: var(--canvas);
+    color: var(--foreground);
     font-feature-settings: 'palt';
     min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.55;
   }
 
   ::selection {
     background: var(--accent-soft);
-    color: var(--text);
+    color: var(--foreground);
   }
 
-  /* Noise overlay - 高級感の肌理 */
+  /* Noise overlay */
   body::before {
     content: '';
     position: fixed;
@@ -55,42 +61,50 @@
     mix-blend-mode: overlay;
   }
 
-  /* Scrollbar */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
   ::-webkit-scrollbar-track {
-    background: var(--bg);
+    background: var(--canvas);
   }
   ::-webkit-scrollbar-thumb {
-    background: var(--border-strong);
+    background: var(--line-strong);
     border-radius: 4px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--text-mute);
+    background: var(--subtle);
+  }
+
+  /* Table wrap for mobile */
+  .table-scroll {
+    @apply -mx-4 overflow-x-auto md:mx-0;
+    scrollbar-width: thin;
+  }
+  .table-scroll > table {
+    @apply min-w-[720px];
   }
 }
 
 @layer components {
   .panel {
-    @apply rounded-lg border border-border bg-surface;
+    @apply rounded-lg border border-line bg-surface;
   }
 
   .section-head {
-    @apply mt-10 mb-4 flex items-end justify-between;
+    @apply mb-4 mt-8 flex flex-wrap items-end justify-between gap-2 md:mt-10;
   }
 
   .section-title {
-    @apply font-serif text-[22px] font-medium tracking-tight text-foreground;
+    @apply font-serif text-[18px] font-medium tracking-tight text-foreground md:text-[22px];
   }
 
   .section-meta {
-    @apply font-mono text-[11px] uppercase tracking-widest text-text-mute;
+    @apply font-mono text-[10px] uppercase tracking-widest text-subtle md:text-[11px];
   }
 
   .btn {
-    @apply inline-flex items-center gap-1.5 rounded border border-border bg-transparent px-3 py-1.5 text-[12px] font-medium text-foreground transition-colors hover:border-border-strong hover:bg-surface-hover;
+    @apply inline-flex items-center gap-1.5 rounded border border-line bg-transparent px-3 py-1.5 text-[12px] font-medium text-foreground transition-colors hover:border-line-strong hover:bg-surface-hover whitespace-nowrap;
   }
 
   .btn-primary {
@@ -99,5 +113,10 @@
 
   .metric-mono {
     @apply font-mono tabular-nums;
+  }
+
+  /* Page container with consistent horizontal padding */
+  .page {
+    @apply mx-auto w-full max-w-[1280px] px-4 py-6 md:px-8 md:py-10;
   }
 }

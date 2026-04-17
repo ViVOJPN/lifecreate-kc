@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 type NavItem = {
@@ -165,22 +166,22 @@ const sections: NavSection[] = [
   },
 ];
 
-export function Sidebar() {
+function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
   const pathname = usePathname();
 
   return (
-    <aside className="sticky top-0 h-screen w-[220px] shrink-0 overflow-y-auto border-r border-border bg-bg py-7">
-      <div className="mb-6 border-b border-border px-6 pb-8">
+    <>
+      <div className="mb-5 border-b border-line px-6 pb-6">
         <div className="flex items-center gap-2.5">
-          <span className="relative h-2.5 w-2.5 rounded-full bg-accent shadow-[0_0_14px_rgba(235,3,28,0.8)]">
+          <span className="relative inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-accent shadow-[0_0_14px_rgba(235,3,28,0.8)]">
             <span className="absolute inset-0 rounded-full bg-accent animate-pulse-dot" />
           </span>
-          <div>
-            <div className="font-serif text-[15px] tracking-tight text-foreground">
+          <div className="min-w-0">
+            <div className="truncate font-serif text-[15px] tracking-tight text-foreground">
               LifeCreate{' '}
               <em className="not-italic font-serif italic text-accent">Intelligence</em>
             </div>
-            <div className="font-mono text-[9px] uppercase tracking-widest text-text-mute">
+            <div className="font-mono text-[9px] uppercase tracking-widest text-subtle">
               AI Command Center
             </div>
           </div>
@@ -189,38 +190,40 @@ export function Sidebar() {
 
       {sections.map((section) => (
         <nav key={section.label} className="mb-5 px-3">
-          <div className="mb-1.5 px-3 font-mono text-[9px] uppercase tracking-widest text-text-mute">
+          <div className="mb-1.5 px-3 font-mono text-[9px] uppercase tracking-widest text-subtle">
             {section.label}
           </div>
           {section.items.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            const active =
+              pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={onLinkClick}
                 className={cn(
-                  'group flex items-center gap-2.5 rounded px-3 py-2 text-[13px] transition-colors',
+                  'group flex items-center gap-2.5 rounded px-3 py-2.5 text-[13px] transition-colors',
                   active
                     ? 'bg-accent-soft text-foreground'
-                    : 'text-text-dim hover:bg-surface-hover hover:text-foreground',
+                    : 'text-muted hover:bg-surface-hover hover:text-foreground',
                 )}
               >
                 <span
                   className={cn(
                     'h-4 w-4 shrink-0',
-                    active ? 'text-accent' : 'text-text-mute group-hover:text-text-dim',
+                    active ? 'text-accent' : 'text-subtle group-hover:text-muted',
                   )}
                 >
                   {item.icon}
                 </span>
-                <span className="flex-1">{item.label}</span>
+                <span className="flex-1 truncate">{item.label}</span>
                 {item.badge ? (
                   <span
                     className={cn(
-                      'rounded px-1.5 py-0.5 font-mono text-[9px] font-semibold',
+                      'shrink-0 rounded px-1.5 py-0.5 font-mono text-[9px] font-semibold',
                       item.badge.tone === 'accent'
                         ? 'bg-accent text-accent-foreground'
-                        : 'bg-surface-hover text-text-dim',
+                        : 'bg-surface-hover text-muted',
                     )}
                   >
                     {item.badge.text}
@@ -231,6 +234,79 @@ export function Sidebar() {
           })}
         </nav>
       ))}
-    </aside>
+    </>
+  );
+}
+
+export function Sidebar() {
+  const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Route change → auto close drawer
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  // Lock body scroll when drawer open
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [open]);
+
+  return (
+    <>
+      {/* Mobile topbar (hamburger) */}
+      <div className="sticky top-0 z-30 flex h-12 items-center justify-between border-b border-line bg-canvas/90 px-4 backdrop-blur lg:hidden">
+        <button
+          aria-label="メニューを開く"
+          onClick={() => setOpen(true)}
+          className="flex h-9 w-9 items-center justify-center rounded border border-line text-muted hover:text-foreground"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+            <path d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+        <div className="flex items-center gap-2">
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-accent shadow-[0_0_10px_rgba(235,3,28,0.9)]">
+            <span className="absolute inset-0 rounded-full bg-accent animate-pulse-dot" />
+          </span>
+          <span className="font-serif text-[13px] text-foreground">
+            LifeCreate{' '}
+            <em className="not-italic italic text-accent">Intelligence</em>
+          </span>
+        </div>
+        <div className="w-9" aria-hidden />
+      </div>
+
+      {/* Desktop sidebar */}
+      <aside className="sticky top-0 hidden h-screen w-[220px] shrink-0 overflow-y-auto border-r border-line bg-canvas py-7 lg:block">
+        <SidebarContent />
+      </aside>
+
+      {/* Mobile drawer */}
+      {open ? (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <button
+            aria-label="メニューを閉じる"
+            onClick={() => setOpen(false)}
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          />
+          <aside className="relative h-full w-[260px] max-w-[85vw] overflow-y-auto border-r border-line bg-canvas py-7 animate-slide-in">
+            <button
+              aria-label="閉じる"
+              onClick={() => setOpen(false)}
+              className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded text-muted hover:text-foreground"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+            <SidebarContent onLinkClick={() => setOpen(false)} />
+          </aside>
+        </div>
+      ) : null}
+    </>
   );
 }

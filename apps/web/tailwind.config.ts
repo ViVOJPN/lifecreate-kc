@@ -2,10 +2,12 @@ import type { Config } from 'tailwindcss';
 
 /**
  * LifeCreate Intelligence - Design Tokens
+ * ダーク基調 × コーポレートレッド (#EB031C)
  *
- * - ダーク基調の AI Command Center UI
- * - Accent は LifeCreate コーポレートレッド (#EB031C)
- * - データ・数値は JetBrains Mono、見出しは Fraunces (serif italic で "Intelligence")
+ * トークン命名規則:
+ *  - canvas / elevated / surface は背景の階層 (bg-canvas / bg-elevated / bg-surface)
+ *  - line は区切り線色 (border-line)
+ *  - foreground / muted / subtle はテキスト階層
  */
 const config: Config = {
   darkMode: 'class',
@@ -17,20 +19,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Surfaces
-        bg: '#0A0A0A',
-        'bg-elevated': '#121212',
-        surface: '#1A1A1A',
-        'surface-hover': '#232323',
-        border: {
+        canvas: '#0A0A0A',
+        elevated: '#121212',
+        surface: {
+          DEFAULT: '#1A1A1A',
+          hover: '#232323',
+        },
+        line: {
           DEFAULT: '#2A2A2A',
           strong: '#3A3A3A',
         },
-        // Text
         foreground: '#F5F5F5',
-        'text-dim': '#A0A0A0',
-        'text-mute': '#6A6A6A',
-        // Brand / Accent
+        muted: '#A0A0A0',
+        subtle: '#6A6A6A',
         brand: {
           50: '#FFE5E8',
           100: '#FFC2C8',
@@ -50,7 +51,6 @@ const config: Config = {
           soft: 'rgba(235, 3, 28, 0.12)',
           foreground: '#FFFFFF',
         },
-        // Semantic
         critical: {
           DEFAULT: '#EB031C',
           soft: 'rgba(235, 3, 28, 0.10)',
@@ -101,11 +101,19 @@ const config: Config = {
           '0%': { opacity: '0', transform: 'translateY(6px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        slideIn: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(0)' },
+        },
       },
       animation: {
         'pulse-dot': 'pulse 2.4s ease-in-out infinite',
         scan: 'scan 2.2s linear infinite',
         'fade-up': 'fadeUp 0.28s ease-out both',
+        'slide-in': 'slideIn 0.22s ease-out',
+      },
+      screens: {
+        xs: '480px',
       },
     },
   },

@@ -2,10 +2,6 @@ import { Topbar } from '@/components/topbar';
 import { SignalCard } from '@/components/ui/signal-card';
 import { Kpi } from '@/components/ui/kpi';
 
-/**
- * Phase 1b MVP: 朝の3つの示唆
- * 現状ダミーデータ。morning-brief エージェント実装後に ai_signals テーブルから取得。
- */
 export default function BriefingPage() {
   return (
     <>
@@ -13,45 +9,45 @@ export default function BriefingPage() {
         crumbs={[{ label: 'Intelligence' }, { label: '朝の3つの示唆' }]}
         actions={
           <>
-            <button className="btn">
+            <button className="btn hidden sm:inline-flex">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3 w-3">
                 <path d="M12 3v18M3 12h18" />
               </svg>
               追加の問い
             </button>
-            <button className="btn">PDFで書き出し</button>
-            <button className="btn btn-primary">経営会議用ブリーフ</button>
+            <button className="btn hidden md:inline-flex">PDFで書き出し</button>
+            <button className="btn btn-primary">経営会議用</button>
           </>
         }
       />
 
-      <div className="px-8 py-10">
-        <header className="mb-10">
-          <h1 className="font-serif text-[44px] font-medium leading-tight tracking-tight text-foreground">
+      <div className="page">
+        <header className="mb-8 md:mb-10">
+          <h1 className="font-serif text-[28px] font-medium leading-tight tracking-tight text-foreground md:text-[44px]">
             おはようございます、<em className="not-italic italic text-accent">有冨さん</em>。
           </h1>
-          <p className="mt-2 text-[14px] text-text-dim">
+          <p className="mt-2 text-[13px] text-muted md:text-[14px]">
             本日、注視すべき3つのシグナルを整理しました。
-            <span className="ml-3 font-mono text-[11px] uppercase tracking-widest text-text-mute">
+            <span className="mt-1 block font-mono text-[10px] uppercase tracking-widest text-subtle md:ml-3 md:mt-0 md:inline">
               2026.04.17 / Fri / 07:42 JST
             </span>
           </p>
         </header>
 
         {/* AI Morning Brief */}
-        <section className="mb-10 rounded-lg border border-border bg-gradient-to-br from-surface to-bg-elevated p-7">
-          <div className="mb-4 flex items-center justify-between">
+        <section className="mb-8 rounded-lg border border-line bg-gradient-to-br from-surface to-elevated p-5 md:mb-10 md:p-7">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <span className="rounded-full border border-accent/40 bg-accent-soft px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-accent">
               AI Morning Brief
             </span>
-            <span className="font-mono text-[10px] text-text-mute">
-              Analyzed 347,182 records · 23 signals detected · 3 prioritized
+            <span className="font-mono text-[9px] text-subtle md:text-[10px]">
+              Analyzed 347,182 records · 23 signals · 3 prioritized
             </span>
           </div>
-          <h2 className="font-serif text-[22px] font-medium leading-snug text-foreground">
+          <h2 className="font-serif text-[18px] font-medium leading-snug text-foreground md:text-[22px]">
             御用聞きビジョンに対する重要な警告が1件あります。
           </h2>
-          <p className="mt-4 text-[14px] leading-relaxed text-text-dim">
+          <p className="mt-4 text-[13px] leading-relaxed text-muted md:text-[14px]">
             2024年4月以降、
             <strong className="text-foreground">福岡インター店の会員データ取得が実質的に停止</strong>
             しています（月次会員化率が12%台から0%に断絶）。
@@ -64,10 +60,10 @@ export default function BriefingPage() {
             <strong className="text-positive">前年比+18.9%で好調</strong>
             、構造問題は表面に出ていませんが、今のうちに手を打つべき局面です。
           </p>
-          <div className="mt-6 flex flex-wrap gap-2">
-            <button className="btn btn-primary">詳細を1件ずつ確認</button>
-            <button className="btn">AIに質問する</button>
-            <button className="btn">経営メンバーに共有</button>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <button className="btn btn-primary">詳細を確認</button>
+            <button className="btn">AIに質問</button>
+            <button className="btn hidden sm:inline-flex">経営メンバーに共有</button>
           </div>
         </section>
 
@@ -77,7 +73,7 @@ export default function BriefingPage() {
           <div className="section-meta">AI優先度順 · 3 items</div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           <SignalCard
             severity="critical"
             category="CRM / 御用聞き"
@@ -135,13 +131,13 @@ export default function BriefingPage() {
         <div className="section-head">
           <div className="section-title">
             全社KPI
-            <span className="ml-2 font-sans text-[12px] font-normal text-text-mute">
+            <span className="ml-2 font-sans text-[12px] font-normal text-subtle">
               · ライフクリエイト連結
             </span>
           </div>
           <div className="section-meta">2025年12月期実績 vs. 2026年通期予想</div>
         </div>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-5">
           <Kpi label="売上高" value="2,409" unit="M円" change="+18.9% YoY" trend="up" />
           <Kpi label="営業利益" value="103" unit="M円" change="+699% YoY" trend="up" />
           <Kpi label="リユース事業" value="2,337" unit="M円" change="+18.8% YoY" trend="up" />
