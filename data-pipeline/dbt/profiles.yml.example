@@ -1,0 +1,29 @@
+# dbt profile 例
+# 実運用時は ~/.dbt/profiles.yml にコピーして認証情報を埋める
+# サービスアカウント JSON はリポジトリにコミットしない
+
+lifecreate:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: "{{ env_var('GCP_PROJECT_ID') }}"
+      dataset: lifecreate_analytics
+      keyfile: "{{ env_var('GCP_SERVICE_ACCOUNT_KEY') }}"
+      threads: 4
+      timeout_seconds: 300
+      location: asia-northeast1
+      priority: interactive
+      retries: 1
+    prod:
+      type: bigquery
+      method: service-account
+      project: "{{ env_var('GCP_PROJECT_ID') }}"
+      dataset: lifecreate_analytics
+      keyfile: "{{ env_var('GCP_SERVICE_ACCOUNT_KEY') }}"
+      threads: 8
+      timeout_seconds: 600
+      location: asia-northeast1
+      priority: batch
+      retries: 2

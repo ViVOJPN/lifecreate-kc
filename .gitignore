@@ -1,0 +1,72 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+next-env.d.ts
+
+# Turborepo
+.turbo/
+
+# Environment
+.env
+.env*.local
+.env.development
+.env.production
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+logs/
+*.log
+
+# Testing
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+
+# IDE / OS
+.DS_Store
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+
+# Vercel
+.vercel
+
+# dbt
+data-pipeline/dbt/target/
+data-pipeline/dbt/dbt_packages/
+data-pipeline/dbt/logs/
+profiles.yml
+
+# GCP service account keys (絶対にコミットしない)
+*.json.key
+gcp-service-account*.json
+!**/package.json
+!**/tsconfig.json
+!**/turbo.json
+!**/components.json
+
+# Python (ETL)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+
+# Claude Code
+.claude/

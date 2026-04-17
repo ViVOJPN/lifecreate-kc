@@ -1,0 +1,27 @@
+version: 2
+
+sources:
+  - name: lifecreate_raw_internal
+    database: "{{ env_var('GCP_PROJECT_ID') }}"
+    schema: lifecreate_raw_internal
+    tables:
+      - name: pos_transactions
+        description: POS取引明細（店頭売・店頭買）
+      - name: pos_item_details
+        description: 単品詳細（商品ライフサイクル）
+      - name: pos_inventory_monthly
+        description: 月次在庫
+
+  - name: lifecreate_raw_market
+    database: "{{ env_var('GCP_PROJECT_ID') }}"
+    schema: lifecreate_raw_market
+    tables:
+      - name: aucfan_snapshots
+        description: オークファン相場スナップショット
+
+  - name: lifecreate_raw_environment
+    database: "{{ env_var('GCP_PROJECT_ID') }}"
+    schema: lifecreate_raw_environment
+    tables:
+      - name: weather_daily
+        description: 日次天気データ

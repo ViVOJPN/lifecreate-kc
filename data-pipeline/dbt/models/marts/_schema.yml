@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: vw_store_360
+    description: |
+      店舗総合ビュー。日次KPI・会員・在庫などを店舗単位で集約。
+      設計書 §2.1.2 参照。Phase 1a で本実装。
+    columns:
+      - name: store_id
+        description: Supabase stores.id への参照
+        tests:
+          - not_null
+      - name: as_of_date
+        description: 集計基準日
+        tests:
+          - not_null
