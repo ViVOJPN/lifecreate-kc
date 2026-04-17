@@ -3,36 +3,101 @@
 @tailwind utilities;
 
 /**
- * LifeCreate Intelligence - Base design tokens
- * ブランドカラーは Tailwind config (tailwind.config.ts) 参照
+ * LifeCreate Intelligence - Global styles
+ * ダーク基調 × コーポレートレッドアクセント
+ * 詳細トークンは tailwind.config.ts
  */
 :root {
-  --brand-primary: #eb031c;
-  --brand-accent: #ff6f7a;
-  --text-primary: #333333;
-  --text-muted: #656565;
-  --surface: #f5f5f5;
-  --border: #e3e3e3;
+  --bg: #0a0a0a;
+  --bg-elevated: #121212;
+  --surface: #1a1a1a;
+  --surface-hover: #232323;
+  --border: #2a2a2a;
+  --border-strong: #3a3a3a;
+  --text: #f5f5f5;
+  --text-dim: #a0a0a0;
+  --text-mute: #6a6a6a;
+  --accent: #eb031c;
+  --accent-strong: #ff2d44;
+  --accent-soft: rgba(235, 3, 28, 0.12);
+  --critical: #eb031c;
+  --warning: #d4a34b;
+  --positive: #88a569;
 }
 
 @layer base {
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    color-scheme: dark;
   }
 
   body {
-    @apply bg-white text-foreground;
+    @apply bg-bg text-foreground;
     font-feature-settings: 'palt';
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background: var(--accent-soft);
+    color: var(--text);
+  }
+
+  /* Noise overlay - 高級感の肌理 */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.3'/%3E%3C/svg%3E");
+    opacity: 0.025;
+    pointer-events: none;
+    z-index: 1;
+    mix-blend-mode: overlay;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-mute);
   }
 }
 
 @layer components {
-  .card {
-    @apply rounded-lg border border-border bg-white p-6 shadow-sm;
+  .panel {
+    @apply rounded-lg border border-border bg-surface;
+  }
+
+  .section-head {
+    @apply mt-10 mb-4 flex items-end justify-between;
+  }
+
+  .section-title {
+    @apply font-serif text-[22px] font-medium tracking-tight text-foreground;
+  }
+
+  .section-meta {
+    @apply font-mono text-[11px] uppercase tracking-widest text-text-mute;
+  }
+
+  .btn {
+    @apply inline-flex items-center gap-1.5 rounded border border-border bg-transparent px-3 py-1.5 text-[12px] font-medium text-foreground transition-colors hover:border-border-strong hover:bg-surface-hover;
   }
 
   .btn-primary {
-    @apply bg-primary text-primary-foreground hover:bg-brand-600 rounded-md px-4 py-2 font-medium transition-colors;
+    @apply border-accent bg-accent text-accent-foreground hover:bg-accent-strong hover:border-accent-strong;
+  }
+
+  .metric-mono {
+    @apply font-mono tabular-nums;
   }
 }
