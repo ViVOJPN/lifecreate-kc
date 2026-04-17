@@ -76,7 +76,7 @@
 │  ┌──────────────┐┌──────────────────┐┌──────────────────┐  │
 │  │Internal Ops   ││Market Reference  ││Environmental     │  │
 │  │Service        ││Service (META)    ││Service           │  │
-│  │POS/TKC/GA/Ads ││相場10ソース統合   ││天気/イベント/人口  │  │
+│  │POS/TKC/GA/Ads ││相場10ソース統合   ││イベント/人口      │  │
 │  └──────────────┘└──────────────────┘└──────────────────┘  │
 └────────────────┬────────────────────────────────────────────┘
                  │
@@ -186,7 +186,6 @@ lifecreate-intelligence/
 │   │   ├── ga4-ingest/             # [v0.2]
 │   │   ├── ads-ingest/             # [v0.2]
 │   │   ├── market-price/
-│   │   ├── weather/                # [v0.2]
 │   │   ├── events/                 # [v0.2]
 │   │   └── transforms/
 │   ├── dbt/                        # [v0.2新設] Semantic Layer定義
@@ -371,7 +370,6 @@ dataset: lifecreate_raw_market
   - luxury_references        (MEKIKI、コメ兵等)      [v0.2]
 
 dataset: lifecreate_raw_environment
-  - weather_daily            [v0.2]
   - regional_events          [v0.2]
   - trade_area_stats         (商圏統計)              [v0.2]
   - competitor_financials    (競合決算)              [v0.2]
@@ -417,7 +415,7 @@ CREATE POLICY "store_managers_own_store" ON ai_signals
 | `pricing-optimizer` | 値下げタイミング推奨 | 週次 + イベント駆動 | claude-haiku-4-5 | 2 |
 | `meo-intelligence` | 口コミ分析・返信下書き | 口コミ到着時 | claude-opus-4-7 | 1-2 |
 | `ad-roi-optimizer` | 広告×POSのROI分析 | 週次 | claude-opus-4-7 | 2 |
-| `demand-forecast` | 需要予測（天気×イベント） | 週次 | 独自MLモデル + LLM | 2 |
+| `demand-forecast` | 需要予測（イベント×季節性×過去販売） | 週次 | 独自MLモデル + LLM | 2 |
 | `competitor-analysis` | 競合決算・サイト分析 | 四半期 | claude-opus-4-7 | 3 |
 | `trade-area-analysis` | 商圏・出店候補分析 | オンデマンド | claude-opus-4-7 | 4 |
 
@@ -437,7 +435,7 @@ CREATE POLICY "store_managers_own_store" ON ai_signals
    - Inventory (滞留、在庫金額)
    - MEO (口コミ評価、急変)
    - Ads (ROAS急変)
-   - External (天候・イベント特需予兆)
+   - External (イベント特需予兆)
 
 2. シグナルスコアリング (重要度 × 緊急度)
    - severity: critical / warning / positive
@@ -584,9 +582,9 @@ const tools = [
 
 ### 3.7 `demand-forecast` エージェント (v0.2新設)
 
-- 天候予報 × 過去販売履歴 × イベント情報で需要予測
+- 過去販売履歴 × 季節性プロファイル × イベント情報で需要予測
 - 店舗別・カテゴリ別に前週比変動を予測
-- 予想乖離が大きいものをアラート（例: 台風接近で売上-30%予測）
+- 予想乖離が大きいものをアラート（例: 大型地域イベント開催で売上+25%予測）
 
 ### 3.8 `competitor-analysis` エージェント (v0.2新設)
 
@@ -611,7 +609,7 @@ const tools = [
 
 - **A. 内部運用データ**（POS、TKC、Web広告、GA、Google Business）
 - **B. 市場相場データ**（各種相場サイト、競合買取価格）
-- **C. 環境・商圏データ**（天気、イベント、人口、交通量、競合決算）
+- **C. 環境・商圏データ**（イベント、人口、交通量、競合決算）
 
 それぞれ**取得方法・更新頻度・法務リスク・ガバナンスが全く違う**。一律「BigQueryに突っ込む」発想では破綻するため、§1.1のレイヤーアーキテクチャで段階的に抽象化する。
 
@@ -757,16 +755,7 @@ export interface MarketReferenceService {
 
 ### 4.4 C群: 環境・商圏データ接続仕様
 
-#### 4.4.1 天気
-
-| 項目 | 内容 |
-|---|---|
-| ソース | OpenWeather API（または気象庁オープンデータ） |
-| 頻度 | 1時間毎 |
-| 費用 | 無料（一定リクエスト数まで） |
-| 用途 | 需要予測、来店予測 |
-
-#### 4.4.2 地域イベント
+#### 4.4.1 地域イベント
 
 | 項目 | 内容 |
 |---|---|
@@ -780,7 +769,7 @@ export interface MarketReferenceService {
 - 予想来店インパクト（小・中・大）を過去類似イベントから推定
 - 店舗マネージャに事前通知
 
-#### 4.4.3 商圏人口・交通量
+#### 4.4.2 商圏人口・交通量
 
 | 項目 | 内容 |
 |---|---|
@@ -791,7 +780,7 @@ export interface MarketReferenceService {
 
 **注意**: 交通量データは**本当に必要か要検証**。出店判断は年数回のため常設価値が低い可能性。**オンデマンド分析**で十分かも。
 
-#### 4.4.4 競合決算・競合情報
+#### 4.4.3 競合決算・競合情報
 
 事業セグメント別に整理する。**FC展開ガバナンス（軸B）**および**同一商品価格競争力指数（軸H）**のベンチマーク源。
 
@@ -845,7 +834,38 @@ export interface MarketReferenceService {
 | 代替API移行 | 公式API提供時は即移行 |
 | データ使用範囲 | 社内分析のみ、外部公開・再配布禁止 |
 
-### 4.6 ETLスケジュール
+### 4.6 プラットフォーム依存リスク管理（v0.2新設）
+
+本システムは外部プラットフォームのAPI・アルゴリズムに依存する。各プラットフォームの仕様変更・ポリシー改定は**指標の測定値を非連続にシフトさせる**ため、変更検知と再ベースライン化の仕組みを明示的に設計する。
+
+#### 4.6.1 監視対象プラットフォーム
+
+| 優先度 | プラットフォーム | 依存箇所 | 想定される変動要因 | 業務影響 |
+|---|---|---|---|---|
+| ★★★★★ | **Google Business Profile** | `morning-brief` / `meo-intelligence` / 軸F「MEO可視性」 | APIフィールド削減、クォータ変更、OAuth scope変更、インサイト指標改訂 | MVPの朝ブリーフが白紙化、口コミ分析停止 |
+| ★★★★★ | **Google ローカル検索・MEOアルゴリズム** | 17店舗の来店導線、軸F「MEO可視性」 | コアアップデート（年2〜3回）、ローカルパック表示ロジック変更、近接性バイアス調整 | 店舗ヘルススコアの非連続シフト、MEO施策の再評価 |
+| ★★★★☆ | **メルカリ / ヤフオク** | `market-reference` の中央値、ハンズクラフト相場上限 | 出品手数料改定、送料負担ルール、禁止品目拡大、非公式APIの仕様変更 | 相場中央値の急変、買取上限ロジックの再調整 |
+| ★★★☆☆ | **Amazon PA-API** | ハンズクラフト相場参照の補助 | クォータ厳格化（売上実績連動）、出品規約変更 | 参照ソース1点欠落、代替プロバイダで吸収可能 |
+| ★★☆☆☆ | 楽天市場API / Yahoo!ショッピングAPI | 補助的相場参照 | API廃止・有料化 | 他プロバイダで代替 |
+
+#### 4.6.2 変更検知の運用
+
+| プラットフォーム | 監視手段 | 頻度 |
+|---|---|---|
+| Google Business Profile | [Google Developers Changelog RSS](https://developers.google.com/my-business/content/release-notes) 購読 | 週次自動通知 |
+| Google コアアップデート | [Google Search Central Blog](https://developers.google.com/search/blog) 購読 | 発表時即通知 |
+| メルカリ・ヤフオク | ToS差分チェック（スクリプトで前回取得分とdiff） | 四半期 |
+| Amazon PA-API | AWS Developer Forums / PA-API リリースノート | 月次 |
+
+#### 4.6.3 プラットフォーム変更時の対応プロトコル
+
+1. **破壊的変更検知** → Slack経営層チャンネル即時通知
+2. **影響範囲の定量評価**（該当プロバイダ・影響を受ける指標・軸を列挙）
+3. **Integration Layer で該当ソースを一時停止**（Semantic Layer より上には影響波及させない）
+4. **再ベースライン実施**（例: Googleコアアップデート後はMEOスコアの30日移動平均を再計算し、過去比較の断絶を明示）
+5. **経営ダッシュボード上で「アルゴリズム変更による非連続点」を注記**（軸Fの時系列グラフに垂直線で表示）
+
+### 4.7 ETLスケジュール
 
 ```yaml
 schedules:
@@ -864,10 +884,6 @@ schedules:
 
   aucfan_sync:
     cron: "0 4 * * *"             # 毎日4時
-
-  weather_sync:
-    cron: "0 */3 * * *"           # 3時間毎
-    retry: 1
 
   # Phase 1 集計
   morning_brief_generation:
@@ -957,7 +973,6 @@ schedules:
 
 | 指標 | 必要データ | Phase |
 |---|---|---|
-| 天候感応度 | 天気 × 店舗売上 | 2 |
 | イベント特需係数 | イベント情報 × 売上変動 | 2 |
 | 季節性プロファイル | POS時系列 | 1 |
 
@@ -1079,7 +1094,6 @@ export const appRouter = router({
 ### Phase 1b: MVP「朝の3つの示唆」 (6-12週)
 - [ ] Google Business Profile API接続
 - [ ] オークファンAPI接続
-- [ ] 天気API接続
 - [ ] ai_signals テーブル + シグナル検出ジョブ
 - [ ] `morning-brief` エージェント実装
 - [ ] `meo-intelligence` エージェント（基本機能）
@@ -1190,9 +1204,6 @@ YAHOO_AUCTION_API_KEY=
 AMAZON_PA_API_KEY=
 RAKUTEN_API_KEY=
 
-# External APIs - Environmental
-OPENWEATHER_API_KEY=
-
 # App
 NEXT_PUBLIC_APP_URL=
 CRON_SECRET=
@@ -1214,6 +1225,10 @@ CRON_SECRET=
 | API p95 レイテンシ | Vercel Analytics | 2秒超で警告 |
 | Claude API トークン消費 | 内製ダッシュボード | 日次予算超過で通知 |
 | スクレイピング ToS違反リスク | 月次手動レビュー | 該当時即停止 |
+| GBP API仕様変更 | Google Developers Changelog RSS購読 | 破壊的変更は即レビュー |
+| Google コアアップデート | Search Central Blog購読 | 発表時にMEOスコア再ベースライン |
+| メルカリ・ヤフオク手数料/ToS | 四半期でToS差分チェック | 変更検知で相場モデル再調整 |
+| Amazon PA-API クォータ | 月次リリースノート確認 | クォータ変更で補助ソース切替 |
 
 ### 10.2 月額ランニングコスト見積もり
 
@@ -1221,7 +1236,6 @@ CRON_SECRET=
 |---|---|---|
 | オークファン API | ¥10,000 | ¥10,000 |
 | ヤフオク API | — | ¥15,000 |
-| OpenWeather API | ¥0 | ¥0 |
 | スクレイピングインフラ（Cloud Run） | — | ¥8,000 |
 | MEKIKI / 相場検索 等 | — | ¥20,000〜 |
 | 信用調査会社（競合情報） | — | ¥30,000 |
