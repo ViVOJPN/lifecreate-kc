@@ -241,17 +241,8 @@ const groups = [
   },
   {
     label: 'C群: 環境・商圏',
-    meta: 'Weather · Events · 人口 · 競合決算',
+    meta: 'Events · 人口 · 競合決算',
     sources: [
-      {
-        name: 'OpenWeather',
-        kind: '1h毎',
-        status: 'ok' as Status,
-        schedule: '3時間毎',
-        lastSync: '04-17 07:00',
-        errorRate: 0.1,
-        phase: 'Phase 1b',
-      },
       {
         name: '地域イベント',
         kind: '手動キュレーション + LLM',

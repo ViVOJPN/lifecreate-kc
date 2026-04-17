@@ -23,16 +23,16 @@ export default function ForecastPage() {
             Demand Forecast · Phase 2b
           </div>
           <h1 className="font-serif text-[28px] font-medium leading-tight tracking-tight text-foreground md:text-[40px]">
-            <em className="not-italic italic text-accent">天気</em>と<em className="not-italic italic text-accent">イベント</em>
+            <em className="not-italic italic text-accent">イベント</em>と<em className="not-italic italic text-accent">季節性</em>
             が、今週の売上を動かす。
           </h1>
           <p className="mt-2 max-w-2xl text-[13px] text-muted md:text-[14px]">
-            OpenWeather 7日予報 × 過去3年販売実績 × 地域イベントカレンダーを統合。
+            過去3年販売実績 × 地域イベントカレンダー × 季節性プロファイルを統合。
             現時点で
             <strong className="text-foreground">3件の乖離アラート</strong>
             、うち
-            <strong className="text-accent">1件は台風接近による -34% 予測</strong>
-            （信頼度 91%）。
+            <strong className="text-accent">1件は大型イベントによる +28% 予測</strong>
+            （信頼度 84%）。
           </p>
         </header>
 
@@ -45,17 +45,17 @@ export default function ForecastPage() {
           <AlertCard
             severity="critical"
             date="04-19 Sat"
-            icon="🌀"
+            icon="📉"
             store="ハンズクラフト 宮崎店"
-            delta="-34%"
-            cause="台風18号 九州南部接近 / 最大風速 35m/s"
-            action="営業時間短縮 or 臨時休業の判断を"
-            confidence={91}
+            delta="-22%"
+            cause="過去3年同週平均比で季節性下振れ / 4月下旬は例年スロー期"
+            action="販促強化・買取予算の前倒し再配分"
+            confidence={88}
           />
           <AlertCard
             severity="warning"
             date="04-20 Sun"
-            icon="☀️"
+            icon="🎪"
             store="エコプラス 小倉本店"
             delta="+28%"
             cause="西日本陶器まつり（小倉北区） / 予想来街 48万人"
@@ -128,8 +128,8 @@ export default function ForecastPage() {
         </div>
 
         <div className="section-head">
-          <div className="section-title">7日間 天候 × イベント</div>
-          <div className="section-meta">OpenWeather + 地域キュレーション</div>
+          <div className="section-title">7日間 イベント・季節性</div>
+          <div className="section-meta">地域キュレーション + 季節性プロファイル</div>
         </div>
 
         <div className="grid grid-cols-2 gap-3 xs:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
@@ -144,11 +144,12 @@ export default function ForecastPage() {
               <div className="font-mono text-[10px] uppercase tracking-widest text-subtle">
                 {d.date}
               </div>
-              <div className="my-2 text-[28px] md:my-3 md:text-[32px]">{d.icon}</div>
-              <div className="font-mono text-[13px] text-foreground md:text-[14px]">
-                {d.tempMax}° / {d.tempMin}°
+              <div className="mt-2 font-mono text-[13px] text-foreground md:text-[14px]">
+                {d.seasonalLabel}
               </div>
-              <div className="mt-1 font-mono text-[10px] text-muted">降水 {d.rain}%</div>
+              <div className="mt-1 font-mono text-[10px] text-muted">
+                基準線 {d.seasonalDelta > 0 ? '+' : ''}{d.seasonalDelta}%
+              </div>
               {d.event ? (
                 <div className="mt-3 border-t border-line pt-3 text-[11px] leading-tight text-muted">
                   <div className="font-mono text-[9px] uppercase tracking-widest text-accent">
@@ -248,18 +249,18 @@ function heatColor(v: number): string {
 const heatmapRows = [
   { store: 'ハンズクラフト 福岡インター店', values: [2, 5, 8, 12, 19, -2, 0], total: '¥51.2M' },
   { store: 'ハンズクラフト 北九州本店', values: [1, 3, 10, 14, 4, 1, -1], total: '¥62.8M' },
-  { store: 'ハンズクラフト 宮崎店', values: [-3, -8, -34, -22, 3, 5, 2], total: '¥24.1M' },
+  { store: 'ハンズクラフト 宮崎店', values: [-3, -8, -22, -14, 3, 5, 2], total: '¥25.8M' },
   { store: 'エコプラス 小倉本店', values: [0, 4, 18, 28, 2, -1, 0], total: '¥86.4M' },
   { store: 'ハンズクラフト 豊見城店', values: [3, 2, 6, 9, 4, 0, -2], total: '¥28.9M' },
   { store: 'ハンズクラフト 島根出雲店 (FC)', values: [-1, 2, 4, 6, 3, 0, 1], total: '¥19.5M' },
 ];
 
 const weekForecast = [
-  { date: '4/17 木', icon: '⛅', tempMax: 21, tempMin: 12, rain: 20, event: null, alert: false },
-  { date: '4/18 金', icon: '🌤', tempMax: 23, tempMin: 13, rain: 10, event: null, alert: false },
-  { date: '4/19 土', icon: '🌀', tempMax: 19, tempMin: 15, rain: 95, event: '台風18号 九州南部接近', alert: true },
-  { date: '4/20 日', icon: '☀️', tempMax: 26, tempMin: 14, rain: 0, event: '西日本陶器まつり / 小倉', alert: false },
-  { date: '4/21 月', icon: '☀️', tempMax: 25, tempMin: 13, rain: 0, event: 'SBホークス ホーム開幕', alert: false },
-  { date: '4/22 火', icon: '⛅', tempMax: 22, tempMin: 12, rain: 30, event: null, alert: false },
-  { date: '4/23 水', icon: '🌧', tempMax: 18, tempMin: 11, rain: 80, event: null, alert: false },
+  { date: '4/17 木', seasonalLabel: '平日・並', seasonalDelta: 0, event: null, alert: false },
+  { date: '4/18 金', seasonalLabel: '平日・やや強', seasonalDelta: 4, event: null, alert: false },
+  { date: '4/19 土', seasonalLabel: '週末・スロー', seasonalDelta: -12, event: '例年4月下旬 売上減', alert: true },
+  { date: '4/20 日', seasonalLabel: '週末・特需', seasonalDelta: 28, event: '西日本陶器まつり / 小倉', alert: false },
+  { date: '4/21 月', seasonalLabel: '平日・特需', seasonalDelta: 19, event: 'SBホークス ホーム開幕', alert: false },
+  { date: '4/22 火', seasonalLabel: '平日・並', seasonalDelta: 2, event: null, alert: false },
+  { date: '4/23 水', seasonalLabel: '平日・並', seasonalDelta: -3, event: null, alert: false },
 ];

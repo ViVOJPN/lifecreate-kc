@@ -23,5 +23,5 @@ sources:
     database: "{{ env_var('GCP_PROJECT_ID') }}"
     schema: lifecreate_raw_environment
     tables:
-      - name: weather_daily
-        description: 日次天気データ
+      - name: regional_events
+        description: 地域イベント情報（手動キュレーション + LLM要約）
